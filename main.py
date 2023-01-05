@@ -331,6 +331,8 @@ def evaluate_by_test(model, valloader, epoch, cfg, index=-1, args=None, tokenize
 
 def main():
     args, cfg = prepare_start()
+    print("cfg.TRAIN.BATCH_SIZE: ", cfg.TRAIN.BATCH_SIZE)
+    print("cfg.TEST.BATCH_SIZE: ", cfg.TEST.BATCH_SIZE)
     if cfg.MODEL.METRIC.LOSS == '':
         set_seed(cfg.TRAIN.SEED, cfg.TRAIN.DETERMINISTIC)
     os.makedirs(args.logs_dir, exist_ok=True)

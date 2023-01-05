@@ -1,12 +1,13 @@
 import os
 import os.path as osp
 import cv2
+from config import BASE_DIR
 import argparse
 
 # dataset_path = '/data/datasets/aicity2021/'
 # track = 'AIC21_Track5_NL_Retrieval'
 
-dataset_path = '/data/datasets/aicity2022/'
+dataset_path = BASE_DIR + '/data/datasets/aicity2022/'
 track = 'Track2'
 
 

@@ -2,14 +2,16 @@ from yacs.config import CfgNode as CN
 import os
 import os.path as osp
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 _C = CN()
 
-dataset_path_2021 = '/data/datasets/aicity2021/AIC21_Track5_NL_Retrieval'
-data_path_2021 = '/data/datasets/aicity2021/AIC21_Track5_NL_Retrieval/new_baseline/AIC21_Track5_NL_Retrieval'
+dataset_path_2021 = BASE_DIR + '/data/datasets/aicity2021/AIC21_Track5_NL_Retrieval'
+data_path_2021 = BASE_DIR + '/data/datasets/aicity2021/AIC21_Track5_NL_Retrieval/new_baseline/AIC21_Track5_NL_Retrieval'
 save_mo_dir_2021 = osp.join(data_path_2021, "data/motion_map")
 
-dataset_path = '/data/datasets/aicity2022/Track2'
-data_path = '/data/datasets/aicity2022/Track2'
+dataset_path = BASE_DIR + '/data/datasets/aicity2022/Track2'
+data_path = BASE_DIR + '/data/datasets/aicity2022/Track2'
 save_mo_dir = osp.join(data_path, "mine/data/motion_map_iou")
 
 # DATA process related configurations.
@@ -87,8 +89,8 @@ _C.MODEL.MAIN_FEAT_IDX = -1
 _C.TRAIN = CN()
 _C.TRAIN.ONE_EPOCH_REPEAT = 1
 _C.TRAIN.EPOCH = 400
-_C.TRAIN.BATCH_SIZE = 64
-_C.TRAIN.NUM_WORKERS = 6
+_C.TRAIN.BATCH_SIZE = 8
+_C.TRAIN.NUM_WORKERS = 1
 _C.TRAIN.PRINT_FREQ = 20
 _C.TRAIN.LR = CN()
 _C.TRAIN.LR.BASE_LR = 0.01
@@ -105,8 +107,8 @@ _C.TEST = CN()
 _C.TEST.RESTORE_FROM = None
 # _C.TEST.QUERY_JSON_PATH = "data/test-queries.json"
 _C.TEST.QUERY_JSON_PATH = "data2022/test-queries.json"
-_C.TEST.BATCH_SIZE = 128
-_C.TEST.NUM_WORKERS = 6
+_C.TEST.BATCH_SIZE = 8
+_C.TEST.NUM_WORKERS = 1
 _C.TEST.CONTINUE = ""
 _C.TEST.RERANK = False
 

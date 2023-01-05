@@ -10,11 +10,13 @@ import glob
 import argparse
 import IPython
 
+from config import BASE_DIR
+
 # dataset_path = '/data/datasets/aicity2021/AIC21_Track5_NL_Retrieval'
 # data_path = '/data/datasets/aicity2021/AIC21_Track5_NL_Retrieval/new_baseline/AIC21_Track5_NL_Retrieval'
 
-dataset_path = '/data/datasets/aicity2022/Track2'
-data_path = '/data/datasets/aicity2022/Track2/mine'
+dataset_path = BASE_DIR + '/data/datasets/aicity2022/Track2'
+data_path = BASE_DIR + '/data/datasets/aicity2022/Track2/mine'
 
 imgpath = dataset_path
 # with open("data2021/test-tracks.json") as f:
@@ -28,7 +30,7 @@ with open("data2022/train-tracks.json") as f:
 all_tracks = tracks_train
 for track in tracks_test:
     all_tracks[track] = tracks_test[track]
-n_worker = 12
+n_worker = 1
 
 parser = argparse.ArgumentParser(description='motion image generator')
 parser.add_argument('--iou', default=0.05, type=float,
@@ -81,6 +83,7 @@ def compute_iou(rec1, rec2):
 
 
 def get_bk_map(info):
+    print("info: ", info)
     path, save_name = info
     img = glob.glob(path + "/img1/*")
     img.sort()
@@ -117,7 +120,7 @@ def get_motion_map(info):
     example[postions] = avg_img[postions]
     img_name = save_mo_dir + "/%s.jpg" % track_id
     cv2.imwrite(img_name, example)
-    print(f"motion: {img_name} save done")
+    print(f"motion map: {img_name} save done")
 
 
 def get_motion_map_iou(info):
@@ -171,8 +174,9 @@ def get_motion_map_iou(info):
         example[postions] = avg_img[postions]
     img_name = save_mo_iou_dir + "/%s.jpg" % track_id
     cv2.imwrite(img_name, example)
-    print(f"motion: {img_name} save done")
+    print(f"motion map iou: {img_name} save done")
 
+################################# produce background image #################################
 root = dataset_path
 # paths = ["train/S01", "train/S03", "train/S04", "validation/S02", "validation/S05"]
 paths = ['train/S01', 'validation/S02', 'train/S03', 'train/S04', 'validation/S05', ]
@@ -180,26 +184,43 @@ files = []
 for path in paths:
     seq_list = os.listdir(osp.join(root, path))
     for seq in seq_list:
-        files.append((os.path.join(root, path, seq), path[-3:] + '_' + seq))
-# # print(files)
-# produce background image
-with multiprocessing.Pool(n_worker) as pool:
-     for imgs in tqdm(pool.imap_unordered(get_bk_map, files)):
-         pass
+        if not os.path.isfile(os.path.join(save_bk_dir, path[-3:] + '_' + seq + ".jpg")):
+            files.append((os.path.join(root, path, seq), path[-3:] + '_' + seq))
+print(f"processing {len(files)} bk map")
+for file in files:
+    print(file)
+for file in files:
+    get_bk_map(file)
 
+# with multiprocessing.Pool(n_worker) as pool:
+#      for imgs in tqdm(pool.imap_unordered(get_bk_map, files)):
+#          pass
+
+
+
+################################# produce motion image #################################
 all_tracks_ids = list(all_tracks.keys())
 files = []
 for track_id in all_tracks:
-    files.append((all_tracks[track_id], track_id))
+    if not os.path.isfile(os.path.join(save_mo_iou_dir, track_id + ".jpg")):
+        files.append((all_tracks[track_id], track_id))
+    else:
+        print("file exist: ", track_id)
+print(f"processing {len(files)} motion map")
 
 if args.use_frame:
+    # get_motion_map(files)
+    print("Get motion map ...")
     with multiprocessing.Pool(n_worker) as pool:
         for imgs in tqdm(pool.imap_unordered(get_motion_map, files)):
             pass
 else:
     # iou
-    with multiprocessing.Pool(n_worker) as pool:
-        for imgs in tqdm(pool.imap_unordered(get_motion_map_iou, files)):
-            pass
+    print("Get motion map iou ...")
+    for file in files:
+        get_motion_map_iou(file)
+    # with multiprocessing.Pool(n_worker) as pool:
+    #     for imgs in tqdm(pool.imap_unordered(get_motion_map_iou, files)):
+    #         pass
 
 
